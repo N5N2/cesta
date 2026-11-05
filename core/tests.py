@@ -11,7 +11,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from .models import Delivery, Family, first_day_of_month, validate_cpf
+from core.models import Delivery, Family, first_day_of_month, validate_cpf
 from .serializers import FamilySerializer, normalize_cpf
 
 User = get_user_model()
