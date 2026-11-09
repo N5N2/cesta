@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ação Social - Cestas</title>
+    <style>
+        :root {
+            --bg-page: #f0f4f1;
+            --card-bg: #ffffff;
+            --text-main: #1a2e26;
+            --text-muted: #557063;
+            --primary-color: #134e38;
+            --primary-text: #ffffff;
+            --accent-color: #10b981;
+            --border-color: #e2e8e4;
+            --input-bg: #f9fbf9;
+            --danger-color: #dc2626;
+
+            --fs-xs: 11px;
+            --fs-sm: 13px;
+            --fs-base: 15px;
+            --fs-lg: 18px;
+            --fs-xl: 22px;
+            --fs-xxl: 32px;
+        }
+
+        body.alto-contraste {
+            --bg-page: #0a0a0a;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #cccccc;
+            --primary-color: #ffcc00; 
+            --primary-text: #000000;  
+            --accent-color: #4db8ff;  
+            --border-color: #444444;
+            --input-bg: #2a2a2a;
+            --danger-color: #ff6b6b;
+        }
+
+        body.fonte-maior {
+            --fs-xs: 13px;
+            --fs-sm: 16px;
+            --fs-base: 18px;
+            --fs-lg: 22px;
+            --fs-xl: 26px;
+            --fs-xxl: 40px;
+        }
+
+        body {
+            margin: 0; padding: 20px;
+            background-color: var(--bg-page);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; transition: all 0.3s ease;
+        }
+
+        .app-frame {
+            width: 100%; max-width: 420px; height: 800px;
+            background-color: var(--card-bg);
+            border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color); background: var(--card-bg);
+        }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .icon-box { 
+            background: var(--primary-color); width: 44px; height: 44px; 
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; 
+            color: var(--primary-text); font-size: var(--fs-xl); font-weight: bold;
+        }
+        .header-title { margin: 0; font-size: var(--fs-lg); color: var(--text-main); font-weight: 700; }
+        .header-subtitle { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        
+        .header-actions { display: flex; gap: 8px; }
+        .btn-header { 
+            background: transparent; border: 1px solid var(--border-color); 
+            color: var(--text-main); padding: 8px 12px; border-radius: 10px; 
+            font-size: var(--fs-sm); font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+
+        .screen { flex: 1; padding: 24px; overflow-y: auto; display: none; background: var(--card-bg); }
+        .screen.active { display: block; }
+
+        .title-bar { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;
+        }
+        .btn-back { 
+            background: none; border: none; font-size: var(--fs-lg); font-weight: 700; 
+            color: var(--primary-color); cursor: pointer; padding: 0;
+            display: flex; align-items: center; gap: 6px;
+        }
+        
+        h2 { margin: 0 0 16px 0; font-size: var(--fs-xl); color: var(--text-main); }
+        h3 { margin: 0; font-size: var(--fs-lg); color: var(--text-main); }
+        label { display: block; font-size: var(--fs-base); font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        
+        .input-wrapper { margin-bottom: 24px; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="number"] { 
+            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); 
+            background: var(--input-bg); color: var(--text-main); 
+            box-sizing: border-box; font-size: var(--fs-base); transition: 0.2s;
+        }
+        input:focus { outline: 2px solid var(--primary-color); border-color: transparent; }
+        
+        .btn-solid { 
+            width: 100%; background: var(--primary-color); color: var(--primary-text); 
+            border: none; padding: 16px; border-radius: 12px; font-size: var(--fs-base); 
+            font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-solid.bloqueado { 
+            background-color: var(--danger-color) !important; 
+            color: #ffffff !important; 
+            cursor: not-allowed; 
+        }
+        .btn-outline { 
+            width: 100%; background: transparent; border: 2px solid var(--border-color); 
+            color: var(--text-main); padding: 14px; border-radius: 12px; font-size: var(--fs-base); 
+            font-weight: 700; cursor: pointer; 
+        }
+
+        .card-stock { 
+            background: var(--primary-color); color: var(--primary-text); 
+            padding: 24px; border-radius: 16px; margin-bottom: 24px; 
+        }
+        .family-item { 
+            background: var(--input-bg); border: 1px solid var(--border-color); 
+            padding: 16px; border-radius: 14px; display: flex; justify-content: space-between; 
+            align-items: center; margin-bottom: 12px; cursor: pointer; transition: 0.2s;
+        }
+        .family-item-info { flex: 1; }
+        .family-item-title { font-weight: 700; font-size: var(--fs-base); color: var(--text-main); margin-bottom: 4px; }
+        .family-item-sub { font-size: var(--fs-sm); color: var(--text-muted); }
+        
+        .badge { 
+            background: #e6f4ea; color: #134e38; padding: 6px 10px; 
+            border-radius: 8px; font-size: var(--fs-xs); font-weight: 700; 
+        }
+        body.alto-contraste .badge { background: var(--accent-color); color: #000; }
+        
+        .toggle-row { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px 0; border-bottom: 1px solid var(--border-color); 
+            color: var(--text-main); font-weight: 600; font-size: var(--fs-base);
+        }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); border-radius: 34px; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; transition: .4s; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* MODAL LGPD */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px; box-sizing: border-box;
+        }
+        .modal-content {
+            background: var(--card-bg); width: 100%; max-height: 85%; border-radius: 16px;
+            padding: 24px; display: flex; flex-direction: column; border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-frame">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-logo">
+            <div class="icon-box">✝</div>
+            <div>
+                <div class="header-title">Ação Social</div>
+                <div class="header-subtitle">CESTAS</div>
+            </div>
+        </div>
+        <div class="header-actions" id="menu-actions" style="display: none;">
+            <button class="btn-header" onclick="nav('historico')">Histórico</button>
+            <button class="btn-header" onclick="nav('ajustes')">⚙️ Ajustes</button>
+        </div>
+    </div>
+
+    <!-- TELA 1: LOGIN -->
+    <div id="login" class="screen active">
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 20px;">
+            <button class="btn-header" onclick="document.body.classList.toggle('alto-contraste')">🌓 Contraste</button>
+            <button class="btn-header" onclick="document.body.classList.toggle('fonte-maior')">A+ Fonte</button>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: var(--fs-base); margin-bottom: 24px;">Distribuição simples, segura e sem duplicidades.</p>
+        
+        <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 24px; border-radius: 20px;">
+            <div style="font-size: var(--fs-xs); color: var(--primary-color); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px;">ACESSO DO VOLUNTÁRIO</div>
+            <h2>Bem-vindo de volta</h2>
+            <p style="color: var(--text-muted); font-size: var(--fs-base); margin-bottom: 24px;">Entre com seus dados para iniciar o atendimento.</p>
+            
+            <label>E-mail</label>
+            <div class="input-wrapper">
+                <input type="email" value="voluntario@igreja.org.br">
+            </div>
+            
+            <label>Senha</label>
+            <div class="input-wrapper" style="margin-bottom: 12px;">
+                <input type="password" id="input-senha" value="12345678">
+            </div>
+            
+            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; cursor: pointer; font-weight: 600;">
+                <input type="checkbox" onchange="toggleSenhaCheckbox()" style="width: 18px; height: 18px; margin: 0; padding: 0;">
+                Mostrar senha
+            </label>
+            
+            <button class="btn-solid" onclick="doLogin()">Entrar <span>›</span></button>
+
+            <div style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <a href="#" style="color: var(--primary-color); font-weight: bold; font-size: var(--fs-base); text-decoration: none;" onclick="alert('Um link de recuperação foi enviado para o e-mail informado.');">Esqueci minha senha</a>
+                
+                <div style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <span style="color: var(--text-muted); font-size: var(--fs-sm);">Ainda não tem acesso?</span><br>
+                    <a href="#" style="color: var(--primary-color); font-weight: bold; font-size: var(--fs-base); text-decoration: none;" onclick="alert('Solicite o registo com a Secretaria da Igreja.');">Solicitar acesso</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TELA 2: DASHBOARD -->
+    <div id="dashboard" class="screen">
+        <h2 style="margin-bottom: 20px;">Buscar família</h2>
+
+        <div class="card-stock">
+            <div style="font-size: var(--fs-xs); font-weight: 700; opacity: 0.9; letter-spacing: 0.5px;">ESTOQUE ATUAL</div>
+            <div style="font-size: var(--fs-xxl); font-weight: bold; margin: 8px 0;"><span id="ui-estoque">142</span> <span style="font-size: var(--fs-lg); font-weight: normal;">Cestas</span></div>
+            <div style="font-size: var(--fs-xs); opacity: 0.8; text-align: right;">Atualizado agora</div>
+        </div>
+
+        <div class="input-wrapper">
+            <input type="text" id="input-busca" placeholder="Pesquisar Nome ou CPF..." oninput="filtrarFamilias(this.value)">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 16px; align-items: center;">
+            <div style="font-size: var(--fs-sm); font-weight: 700; color: var(--text-main);">CADASTROS RECENTES</div>
+            <button class="btn-header" style="background: var(--primary-color); color: var(--primary-text); border: none;" onclick="nav('cadastro')">+ Nova</button>
+        </div>
+
+        <div id="lista-familias"></div>
+    </div>
+
+    <!-- TELA DETALHES -->
+    <div id="detalhes" class="screen">
+        <div class="title-bar">
+            <button class="btn-back" onclick="nav('dashboard')">‹ Voltar</button>
+            <h3>Perfil da Família</h3>
+        </div>
+        
+        <div style="background: var(--input-bg); border: 1px solid var(--border-color); padding: 24px; border-radius: 16px; margin-bottom: 24px;">
+            <div style="width: 60px; height: 60px; background: var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px;">👤</div>
+            <h2 id="detalhe-nome" style="margin-bottom: 4px; font-size: var(--fs-lg);">Nome da Família</h2>
+            <p id="detalhe-cpf" style="color: var(--text-muted); font-size: var(--fs-sm); margin: 0 0 16px 0; letter-spacing: 1px;">***.***.***-**</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; gap: 24px;">
+                    <div>
+                        <span style="font-size: var(--fs-xs); color: var(--text-muted); font-weight: bold;">MEMBROS</span>
+                        <div id="detalhe-membros" style="font-size: var(--fs-base); font-weight: 600; color: var(--text-main);">5</div>
+                    </div>
+                    <div>
+                        <span style="font-size: var(--fs-xs); color: var(--text-muted); font-weight: bold;">STATUS</span>
+                        <div id="detalhe-status" style="font-size: var(--fs-base); font-weight: 600; color: var(--accent-color);">Ativo</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <span style="font-size: var(--fs-xs); color: var(--text-muted); font-weight: bold;">ENDEREÇO (CONFIDENCIAL)</span>
+                    <div id="detalhe-endereco" style="font-size: var(--fs-base); font-weight: 600; color: var(--text-main);">Rua das Flores, 123 - Itaquera</div>
+                </div>
+
+                <div id="bloco-data-coleta" style="display: none;">
+                    <span style="font-size: var(--fs-xs); color: var(--danger-color); font-weight: bold;">ÚLTIMA COLETA</span>
+                    <div id="detalhe-data-coleta" style="font-size: var(--fs-base); font-weight: 600; color: var(--danger-color);">--/--/----</div>
+                </div>
+            </div>
+        </div>
+        
+        <button id="btn-registrar-entrega" class="btn-solid" onclick="registrarEntrega()">Registrar Entrega de Cesta</button>
+    </div>
+
+    <!-- TELA CADASTRO -->
+    <div id="cadastro" class="screen">
+        <div class="title-bar">
+            <button class="btn-back" onclick="nav('dashboard')">‹ Voltar</button>
+            <h3>Nova Família</h3>
+        </div>
+        
+        <label>Nome completo do responsável *</label>
+        <div class="input-wrapper"><input type="text" id="cad-nome" placeholder="Ex: João da Silva"></div>
+        
+        <label>CPF *</label>
+        <div class="input-wrapper"><input type="text" id="cad-cpf" placeholder="000.000.000-00" oninput="mascaraCPF(this)"></div>
+        
+        <div style="display: flex; gap: 12px;">
+            <div style="flex: 2;">
+                <label>Endereço *</label>
+                <div class="input-wrapper"><input type="text" id="cad-end" placeholder="Rua..."></div>
+            </div>
+            <div style="flex: 1;">
+                <label>Membros *</label>
+                <div class="input-wrapper"><input type="number" id="cad-membros" placeholder="Ex: 4"></div>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 12px; margin-top: 12px;">
+            <button class="btn-outline" onclick="nav('dashboard')">Cancelar</button>
+            <button class="btn-solid" style="width: auto; flex: 1;" onclick="salvarFamilia()">Salvar</button>
+        </div>
+    </div>
+
+    <!-- TELA HISTÓRICO -->
+    <div id="historico" class="screen">
+        <div class="title-bar">
+            <button class="btn-back" onclick="nav('dashboard')">‹ Voltar</button>
+            <h3>Histórico</h3>
+        </div>
+        
+        <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--primary-color); margin-bottom: 8px;">OUTUBRO DE 2026</div>
+        <h2>Entregas Recentes</h2>
+        
+        <div id="lista-historico"></div>
+    </div>
+
+    <!-- TELA AJUSTES -->
+    <div id="ajustes" class="screen">
+        <div class="title-bar">
+            <button class="btn-back" onclick="nav('dashboard')">‹ Voltar</button>
+            <h3>Ajustes</h3>
+        </div>
+        
+        <p style="color: var(--text-muted); font-size: var(--fs-sm); margin-bottom: 16px;">Configure a interface para sua leitura.</p>
+        
+        <div class="toggle-row" style="cursor: pointer;" onclick="nav('perfil-voluntario')">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 32px; height: 32px; background: var(--primary-color); color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px;">V</div>
+                <span>Perfil do Voluntário</span>
+            </div>
+            <span style="color: var(--text-muted); font-weight: bold;">›</span>
+        </div>
+
+        <div class="toggle-row" style="cursor: pointer;" onclick="abrirModalLGPD()">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 32px; height: 32px; background: var(--accent-color); color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px;">🔒</div>
+                <span>Termos de Uso e LGPD</span>
+            </div>
+            <span style="color: var(--text-muted); font-weight: bold;">›</span>
+        </div>
+
+        <div class="toggle-row">
+            <span>Modo de Alto Contraste</span>
+            <label class="switch">
+                <input type="checkbox" onchange="document.body.classList.toggle('alto-contraste')">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="toggle-row" style="margin-bottom: 24px;">
+            <span>Tamanho da Fonte Maior</span>
+            <label class="switch">
+                <input type="checkbox" onchange="document.body.classList.toggle('fonte-maior')">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <button class="btn-outline" style="color: var(--danger-color); border-color: var(--danger-color);" onclick="doLogout()">Sair da Conta</button>
+    </div>
+
+    <!-- TELA: PERFIL DO VOLUNTÁRIO -->
+    <div id="perfil-voluntario" class="screen">
+        <div class="title-bar">
+            <button class="btn-back" onclick="nav('ajustes')">‹ Voltar</button>
+            <h3>Perfil do Voluntário</h3>
+        </div>
+        
+        <label>Nome Completo</label>
+        <div class="input-wrapper"><input type="text" value="Marcos Voluntário Igreja"></div>
+        
+        <label>E-mail (Credencial)</label>
+        <div class="input-wrapper"><input type="email" value="voluntario@igreja.org.br" readonly style="opacity: 0.7;"></div>
+
+        <label>Telefone de Contato</label>
+        <div class="input-wrapper"><input type="text" value="(11) 99999-9999"></div>
+        
+        <button class="btn-solid" onclick="alert('Dados do voluntário atualizados com sucesso!'); nav('ajustes')">Salvar Alterações</button>
+    </div>
+
+    <!-- MODAL DE TERMOS E LGPD -->
+    <div id="modal-lgpd" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0;">Termos e Política (LGPD)</h3>
+                <button onclick="fecharModalLGPD()" style="background: none; border: none; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--text-main);">✕</button>
+            </div>
+            <div style="font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.6; display: flex; flex-direction: column; gap: 12px;">
+                <p><b>1. Compromisso com a Privacidade:</b> Este aplicativo opera em estrita conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).</p>
+                <p><b>2. Finalidade dos Dados:</b> As informações recolhidas (nome, CPF, endereço e composição familiar) destinam-se exclusivamente ao controlo e à triagem segura na distribuição de auxílios sociais, prevenindo duplicidades e garantindo a assistência a quem mais precisa.</p>
+                <p><b>3. Confidencialidade e Segurança:</b> Os dados são tratados com medidas técnicas de segurança e acesso restrito a voluntários autorizados. Os CPFs são mascarados na interface conforme as diretrizes de minimização de dados.</p>
+                <p><b>4. Direitos do Titular:</b> O titular dos dados pode a qualquer momento solicitar a retificação ou eliminação dos seus registos diretamente junto à secretaria da instituição social responsável.</p>
+            </div>
+            <button class="btn-solid" style="margin-top: 20px;" onclick="fecharModalLGPD()">Compreendido</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let estoque = 142;
+    let familias = [
+        { nome: 'Maria Aparecida Santos', cpf: '123.456.789-00', membros: 5, endereco: 'Rua das Dálias, 45 - Itaquera', status: 'Ativo', id: '1001', recebeuMes: false, dataColeta: null },
+        { nome: 'José Carlos de Souza', cpf: '287.654.321-42', membros: 3, endereco: 'Av. Itaquera, 1020 - Itaquera', status: 'Ativo', id: '1087', recebeuMes: true, dataColeta: '05/11/2026' }
+    ];
+    let historico = [
+        { nome: 'José Carlos de Souza', id: '1087', membros: 3, time: 'Hoje, 09:42', endereco: 'Av. Itaquera, 1020 - Itaquera', cpf: '287.654.321-42', dataColeta: '05/11/2026' }
+    ];
+    let familiaSelecionada = null;
+
+    function nav(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        if(screenId === 'dashboard') renderDashboard();
+        if(screenId === 'historico') renderHistorico();
+    }
+
+    function doLogin() {
+        document.getElementById('menu-actions').style.display = 'flex';
+        nav('dashboard');
+    }
+
+    function doLogout() {
+        document.getElementById('menu-actions').style.display = 'none';
+        nav('login');
+    }
+
+    function toggleSenhaCheckbox() {
+        const input = document.getElementById('input-senha');
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function abrirModalLGPD() {
+        document.getElementById('modal-lgpd').style.display = 'flex';
+    }
+
+    function fecharModalLGPD() {
+        document.getElementById('modal-lgpd').style.display = 'none';
+    }
+
+    function renderDashboard(filtro = '') {
+        document.getElementById('ui-estoque').innerText = estoque;
+        const lista = document.getElementById('lista-familias');
+        lista.innerHTML = '';
+        
+        const termo = filtro.toLowerCase().trim();
+        const filtradas = familias.filter(f => 
+            f.nome.toLowerCase().includes(termo) || f.cpf.includes(termo)
+        );
+
+        if(filtradas.length === 0) {
+            lista.innerHTML = '<p style="color: var(--text-muted); font-size: var(--fs-sm); text-align: center; padding: 20px;">Nenhuma família encontrada.</p>';
+            return;
+        }
+        
+        filtradas.forEach(f => {
+            const cpfOculto = f.cpf.replace(/(\d{3})\.\d{3}\.\d{3}-(\d{2})/, "$1.***.***-$2");
+            const fData = encodeURIComponent(JSON.stringify(f));
+            lista.innerHTML += `
+                <div class="family-item" onclick="abrirDetalhes('${fData}', false)">
+                    <div class="family-item-info">
+                        <div class="family-item-title">${f.nome}</div>
+                        <div class="family-item-sub">${cpfOculto} • ${f.membros} membros</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="badge">${f.status}</span>
+                        <span style="color: var(--text-muted); font-weight: bold;">›</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function filtrarFamilias(valor) {
+        renderDashboard(valor);
+    }
+
+    function renderHistorico() {
+        const lista = document.getElementById('lista-historico');
+        lista.innerHTML = '';
+        
+        if(historico.length === 0) {
+            lista.innerHTML = '<p style="color: var(--text-muted); font-size: var(--fs-sm);">Nenhuma entrega recente.</p>';
+            return;
+        }
+
+        historico.forEach(h => {
+            const fFake = { nome: h.nome, cpf: h.cpf, endereco: h.endereco, membros: h.membros, status: 'Ativo', id: h.id, dataColeta: h.dataColeta };
+            const fData = encodeURIComponent(JSON.stringify(fFake));
+            
+            lista.innerHTML += `
+                <div class="family-item" onclick="abrirDetalhes('${fData}', true)">
+                    <div class="family-item-info">
+                        <div class="family-item-title">${h.nome}</div>
+                        <div class="family-item-sub">Família #${h.id} • ${h.membros} membros</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: var(--accent-color); font-weight: 700; font-size: var(--fs-sm);">1 cesta</div>
+                        <div style="font-size: var(--fs-xs); color: var(--text-muted); margin-top: 4px;">${h.time}</div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function abrirDetalhes(dadosCodificados, somenteVisualizacao) {
+        familiaSelecionada = JSON.parse(decodeURIComponent(dadosCodificados));
+        
+        document.getElementById('detalhe-nome').innerText = familiaSelecionada.nome;
+        
+        const cpfLgpd = familiaSelecionada.cpf.replace(/(\d{3})\.\d{3}\.\d{3}-(\d{2})/, "$1.***.***-$2");
+        document.getElementById('detalhe-cpf').innerText = cpfLgpd;
+        
+        document.getElementById('detalhe-membros').innerText = familiaSelecionada.membros;
+        document.getElementById('detalhe-endereco').innerText = familiaSelecionada.endereco;
+        document.getElementById('detalhe-status').innerText = familiaSelecionada.status;
+        
+        const blocoData = document.getElementById('bloco-data-coleta');
+        if(familiaSelecionada.dataColeta) {
+            blocoData.style.display = 'block';
+            document.getElementById('detalhe-data-coleta').innerText = familiaSelecionada.dataColeta;
+        } else {
+            blocoData.style.display = 'none';
+        }
+        
+        const btnEntrega = document.getElementById('btn-registrar-entrega');
+        let famBase = familias.find(f => f.id === familiaSelecionada.id);
+        
+        if(somenteVisualizacao || (famBase && famBase.recebeuMes)) {
+            btnEntrega.innerText = 'Cesta já coletada';
+            btnEntrega.className = 'btn-solid bloqueado';
+            btnEntrega.disabled = true;
+        } else {
+            btnEntrega.innerText = 'Registrar Entrega de Cesta';
+            btnEntrega.className = 'btn-solid';
+            btnEntrega.disabled = false;
+        }
+        
+        nav('detalhes');
+    }
+
+    function registrarEntrega() {
+        if(estoque <= 0) return alert('Estoque esgotado!');
+        if(!familiaSelecionada) return;
+
+        let famIndex = familias.findIndex(f => f.id === familiaSelecionada.id);
+        
+        estoque--;
+        const dataFormatada = new Date().toLocaleDateString('pt-BR');
+        
+        if(famIndex !== -1) {
+            familias[famIndex].recebeuMes = true; 
+            familias[famIndex].dataColeta = dataFormatada;
+        }
+        
+        const dataAtual = new Date();
+        const horaFormato = `Hoje, ${String(dataAtual.getHours()).padStart(2, '0')}:${String(dataAtual.getMinutes()).padStart(2, '0')}`;
+        
+        historico.unshift({
+            nome: familiaSelecionada.nome,
+            id: familiaSelecionada.id,
+            membros: familiaSelecionada.membros,
+            endereco: familiaSelecionada.endereco,
+            cpf: familiaSelecionada.cpf,
+            time: horaFormato,
+            dataColeta: dataFormatada
+        });
+
+        alert(`Entrega registrada com sucesso para ${familiaSelecionada.nome}!`);
+        nav('dashboard');
+    }
+
+    function salvarFamilia() {
+        const nome = document.getElementById('cad-nome').value.trim();
+        const cpf = document.getElementById('cad-cpf').value.trim();
+        const end = document.getElementById('cad-end').value.trim();
+        const membros = document.getElementById('cad-membros').value;
+        
+        if(!nome || !cpf || !end) {
+            alert('Por favor, preencha os dados obrigatórios.');
+            return;
+        }
+
+        const cpfExiste = familias.some(f => f.cpf === cpf);
+        if(cpfExiste) {
+            alert('Erro: Este CPF já está cadastrado no sistema! Duplicidade bloqueada por segurança.');
+            return;
+        }
+
+        familias.unshift({
+            nome: nome,
+            cpf: cpf,
+            endereco: end,
+            membros: membros || 1,
+            status: 'Ativo',
+            id: Math.floor(1000 + Math.random() * 9000).toString(),
+            recebeuMes: false,
+            dataColeta: null
+        });
+
+        document.getElementById('cad-nome').value = '';
+        document.getElementById('cad-cpf').value = '';
+        document.getElementById('cad-end').value = '';
+        document.getElementById('cad-membros').value = '';
+        
+        alert('Família cadastrada com sucesso!');
+        nav('dashboard');
+    }
+
+    function mascaraCPF(i) {
+        let v = i.value.replace(/\D/g, "");
+        if (v.length > 11) v = v.substring(0, 11);
+        if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+        else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+        else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+        i.value = v;
+    }
+</script>
+
+</body>
+</html>
