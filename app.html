@@ -156,7 +156,6 @@
         input:checked + .slider { background-color: var(--primary-color); }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* MODAL LGPD */
         .modal-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center;
@@ -223,7 +222,7 @@
                 
                 <div style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 15px;">
                     <span style="color: var(--text-muted); font-size: var(--fs-sm);">Ainda não tem acesso?</span><br>
-                    <a href="#" style="color: var(--primary-color); font-weight: bold; font-size: var(--fs-base); text-decoration: none;" onclick="alert('Solicite o registo com a Secretaria da Igreja.');">Solicitar acesso</a>
+                    <a href="#" style="color: var(--primary-color); font-weight: bold; font-size: var(--fs-base); text-decoration: none;" onclick="alert('Solicite o registro com a Secretaria da Igreja.');">Solicitar acesso</a>
                 </div>
             </div>
         </div>
@@ -405,9 +404,9 @@
             </div>
             <div style="font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.6; display: flex; flex-direction: column; gap: 12px;">
                 <p><b>1. Compromisso com a Privacidade:</b> Este aplicativo opera em estrita conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).</p>
-                <p><b>2. Finalidade dos Dados:</b> As informações recolhidas (nome, CPF, endereço e composição familiar) destinam-se exclusivamente ao controlo e à triagem segura na distribuição de auxílios sociais, prevenindo duplicidades e garantindo a assistência a quem mais precisa.</p>
+                <p><b>2. Finalidade dos Dados:</b> As informações recolhidas (nome, CPF, endereço e composição familiar) destinam-se exclusivamente ao controle e à triagem segura na distribuição de auxílios sociais, prevenindo duplicidades e garantindo a assistência a quem mais precisa.</p>
                 <p><b>3. Confidencialidade e Segurança:</b> Os dados são tratados com medidas técnicas de segurança e acesso restrito a voluntários autorizados. Os CPFs são mascarados na interface conforme as diretrizes de minimização de dados.</p>
-                <p><b>4. Direitos do Titular:</b> O titular dos dados pode a qualquer momento solicitar a retificação ou eliminação dos seus registos diretamente junto à secretaria da instituição social responsável.</p>
+                <p><b>4. Direitos do Titular:</b> O titular dos dados pode a qualquer momento solicitar a retificação ou eliminação dos seus registros diretamente junto à secretaria da instituição social responsável.</p>
             </div>
             <button class="btn-solid" style="margin-top: 20px;" onclick="fecharModalLGPD()">Compreendido</button>
         </div>
@@ -415,15 +414,27 @@
 </div>
 
 <script>
-    let estoque = 142;
-    let familias = [
+    // DADOS INICIAIS PADRÃO
+    const familiasPadrao = [
         { nome: 'Maria Aparecida Santos', cpf: '123.456.789-00', membros: 5, endereco: 'Rua das Dálias, 45 - Itaquera', status: 'Ativo', id: '1001', recebeuMes: false, dataColeta: null },
         { nome: 'José Carlos de Souza', cpf: '287.654.321-42', membros: 3, endereco: 'Av. Itaquera, 1020 - Itaquera', status: 'Ativo', id: '1087', recebeuMes: true, dataColeta: '05/11/2026' }
     ];
-    let historico = [
+    
+    const historicoPadrao = [
         { nome: 'José Carlos de Souza', id: '1087', membros: 3, time: 'Hoje, 09:42', endereco: 'Av. Itaquera, 1020 - Itaquera', cpf: '287.654.321-42', dataColeta: '05/11/2026' }
     ];
+
+    // PERSISTÊNCIA LOCAL (LocalStorage)
+    let estoque = localStorage.getItem('cesta_estoque') ? parseInt(localStorage.getItem('cesta_estoque')) : 142;
+    let familias = localStorage.getItem('cesta_familias') ? JSON.parse(localStorage.getItem('cesta_familias')) : familiasPadrao;
+    let historico = localStorage.getItem('cesta_historico') ? JSON.parse(localStorage.getItem('cesta_historico')) : historicoPadrao;
     let familiaSelecionada = null;
+
+    function salvarDadosLocais() {
+        localStorage.setItem('cesta_estoque', estoque);
+        localStorage.setItem('cesta_familias', JSON.stringify(familias));
+        localStorage.setItem('cesta_historico', JSON.stringify(historico));
+    }
 
     function nav(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -583,6 +594,7 @@
             dataColeta: dataFormatada
         });
 
+        salvarDadosLocais();
         alert(`Entrega registrada com sucesso para ${familiaSelecionada.nome}!`);
         nav('dashboard');
     }
@@ -614,6 +626,8 @@
             recebeuMes: false,
             dataColeta: null
         });
+
+        salvarDadosLocais();
 
         document.getElementById('cad-nome').value = '';
         document.getElementById('cad-cpf').value = '';
